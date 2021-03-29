@@ -74,33 +74,23 @@ pal <- colorFactor(colors, lat_long$Stand)
 Species <- c("ASH", "BASP", "BASS", "BE", "HB", "OAK", "PC", "RM", "SM", "STM", "WB","YB", 
              "QASP", "GB", "MM", "RO", "SEEDS", "TWIGS", "ASP", "VIB", "UNK", "NL")
 
-GroupedLitter <- LitterTable %>% 
-  group_by(Year, Treatment) %>%
-  summarize(Mass = mean(Mass))%>% 
-  ungroup()
+GroupedLitter <- LitterTable %>% group_by(Year, Treatment) %>%
+  summarize(Mass = mean(Mass , na.rm = TRUE))
 
-GroupedLitter_Specific <- LitterTable %>% 
-  group_by(Year, Stand, Treatment, Plot) %>%
-  summarize(Mass = mean(Mass))%>% 
-  ungroup()
+GroupedLitter_Specific <- LitterTable %>% group_by(Year, Stand, Treatment, Plot) %>%
+  summarize(Mass = mean(Mass))
 
 GroupedSoilData <- CleanSoilResp %>%
   group_by(date, stand, treatment) %>%
-  summarize(flux = mean(flux), temperature = mean(temperature))%>% 
-  ungroup()
+  summarize(flux = mean(flux), temperature = mean(temperature))
 
-GroupedSoilData %>% 
-  mutate(date = ymd(date))%>% 
-  ungroup()
+GroupedSoilData %>% mutate(date = ymd(date))
 
 GroupedSoilData2 <- CleanSoilResp %>%
   group_by(date, treatment) %>%
-  summarize(flux = mean(flux), temperature = mean(temperature))%>% 
-  ungroup()
+  summarize(flux = mean(flux), temperature = mean(temperature))
 
-GroupedSoilData2 %>% 
-  mutate(date = ymd(date)) %>% 
-  ungroup()
+GroupedSoilData2 %>% mutate(date = ymd(date))
 
 #Dashboard setup
 ui <- dashboardPage(
@@ -670,7 +660,7 @@ server <- function(input, output) {
                    binaxis = "y")+
       theme_bw()+
       theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=0))+
-      labs(title = "Soil Respiration Flux", 
+      labs(title = "Time Series: CO2 Flux vs. Time", 
            x = "Date", 
            y = "CO2 efflux per unit area (μg CO2/m2/s)")
     
@@ -693,7 +683,7 @@ server <- function(input, output) {
                    binaxis = "y")+
       theme_bw()+
       theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=0))+
-      labs(title = "Soil Respiration Flux", 
+      labs(title = "Time Series: CO2 Flux vs. Time", 
            x = "Date", 
            y = "CO2 efflux per unit area (μg CO2/m2/s)")
     
@@ -714,7 +704,7 @@ server <- function(input, output) {
       geom_line()+
       theme(axis.text.x = element_text(angle = 60, hjust = 1))+
       theme_bw()+
-      labs(title = "Soil Respiration Flux", 
+      labs(title = "Boxplot: CO2 Flux vs. Treatment Type", 
            x = "Treatment", 
            y = "CO2 efflux per unit area (μg CO2/m2/s)")
   })
@@ -736,10 +726,9 @@ server <- function(input, output) {
                    binaxis = "y")+
       theme_bw()+
       theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=0))+
-      labs(title = "Soil Respiration Flux", 
+      labs(title = "Time Series: CO2 Flux vs. Time", 
            x = "Date", 
-           y = "CO2 efflux per unit area (μg CO2/m2/s)")+
-      facet_wrap(facets = "stand", ncol = 2)
+           y = "CO2 efflux per unit area (μg CO2/m2/s)")
   })
 
 #Flux Boxplot (Specific Stand)
@@ -758,7 +747,7 @@ server <- function(input, output) {
       geom_line()+
       theme(axis.text.x = element_text(angle = 60, hjust = 1))+
       theme_bw()+
-      labs(title = "Soil Respiration Flux", 
+      labs(title = "Boxplot: CO2 Flux vs. Treatment Type", 
            x = "Treatment", 
            y = "CO2 efflux per unit area (μg CO2/m2/s)")+
       facet_wrap(facets = "stand", ncol = 2)
@@ -988,9 +977,9 @@ server <- function(input, output) {
                    binaxis = "y")+
       theme_bw()+
       theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=0))+
-      labs(title = "Soil Respiration Temperature", 
+      labs(title = "Time Series: Temperature vs Time", 
            x = "Date", 
-           y = "Temperature")
+           y = "Temperature (°C)")
     
   })  
   #Soil Temp Boxplot (All Stands)
@@ -1008,9 +997,9 @@ server <- function(input, output) {
       geom_line()+
       theme(axis.text.x = element_text(angle = 60, hjust = 1))+
       theme_bw()+
-      labs(title = "Soil Respiration Flux", 
+      labs(title = "Boxplot: Temperature vs. Treatment Type", 
            x = "Treatment", 
-           y = "Temperature")
+           y = "Temperature (°C)")
     
   }) 
   #Soil Temp TS plot (Specific Stand)
@@ -1030,10 +1019,9 @@ server <- function(input, output) {
                    binaxis = "y")+
       theme_bw()+
       theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=0))+
-      labs(title = "Soil Respiration Temperature", 
+      labs(title = "Time Series: Temperature vs. Time", 
            x = "Date", 
-           y = "Temperature")+
-      facet_wrap(facets = "stand", ncol = 2)
+           y = "Temperature (°C)")
     
   })
   #Soil Temp Boxplot (Specific Stand) 
@@ -1052,10 +1040,9 @@ server <- function(input, output) {
       geom_line()+
       theme(axis.text.x = element_text(angle = 60, hjust = 1))+
       theme_bw()+
-      labs(title = "Soil Respiration Flux", 
+      labs(title = "Time Series: Temperature vs Treatment Type", 
            x = "Treatment", 
-           y = "Temperature")+
-      facet_wrap(facets = "stand", ncol = 2)
+           y = "Temperature (°C)")
     
   })
   
@@ -1073,7 +1060,7 @@ server <- function(input, output) {
       geom_path(aes(x = date, y = flux, group = treatment, color = treatment))+
       theme_bw()+
       theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=0))+
-      labs(title = "Average Daily Soil Respiration Flux", 
+      labs(title = "Time Series: Average CO2 Flux vs. Time", 
            x = "Date", 
            y = "Average CO2 efflux per unit area (μg CO2/m2/s)")
     
@@ -1093,9 +1080,9 @@ server <- function(input, output) {
       geom_line()+
       theme(axis.text.x = element_text(angle = 60, hjust = 1))+
       theme_bw()+
-      labs(title = "Average Soil Respiration Flux", 
+      labs(title = "Boxplot: Average CO2 Flux vs Treatment Type", 
            x = "Treatment", 
-           y = "Average Soil Respiration Flux")
+           y = "Average CO2 efflux per unit area (μg CO2/m2/s)")
     
   })
 #Average Flux TS Plot (Specific Stand) 
@@ -1113,10 +1100,9 @@ server <- function(input, output) {
       geom_path(aes(x = date, y = flux, group = treatment, color = treatment))+
       theme_bw()+
       theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=0))+
-      labs(title = "Average Daily Soil Respiration Flux", 
+      labs(title = "Time Series: Average CO2 Flux vs. Time", 
            x = "Date", 
-           y = "Average CO2 efflux per unit area (μg CO2/m2/s)")+
-      facet_wrap(facets = "stand", ncol = 4)
+           y = "Average CO2 efflux per unit area (μg CO2/m2/s)")
     
   })
 
@@ -1136,10 +1122,9 @@ server <- function(input, output) {
       geom_line()+
       theme(axis.text.x = element_text(angle = 60, hjust = 1))+
       theme_bw()+
-      labs(title = "Average Soil Respiration Flux", 
+      labs(title = "Boxplot: Average CO2 Flux vs. Treatment Type", 
            x = "Treatment", 
-           y = "Average Soil Respiration Flux")+
-      facet_wrap(facets = "stand", ncol = 4)
+           y = "Average CO2 efflux per unit area (μg CO2/m2/s)")
     
   })
  
@@ -1157,9 +1142,9 @@ server <- function(input, output) {
       geom_line(aes(x = date, y = temperature, group = treatment, color = treatment))+
       theme_bw()+
       theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=0))+
-      labs(title = "Average Daily Soil Respiration Temperature", 
+      labs(title = "Time Series: Average Temperature vs. Time", 
            x = "Date", 
-           y = "Average Temperature")
+           y = "Average Temperature (°C)")
   })
 #Average Temperature Boxplot (All Stands)
   output$TMean_Box_All <- renderPlotly({
@@ -1176,9 +1161,9 @@ server <- function(input, output) {
       geom_line()+
       theme(axis.text.x = element_text(angle = 90, hjust = 0))+
       theme_bw()+
-      labs(title = "Average Soil Respiration Temperature", 
+      labs(title = "Boxplot: Average Temperature vs Treatment Type", 
            x = "Treatment", 
-           y = "Average Soil Respiration Temperature")
+           y = "Average Temperature (°C)")
     
   }) 
 #Average Temperature TS plot (Specific Stand)
@@ -1196,11 +1181,9 @@ server <- function(input, output) {
       geom_line(aes(x = date, y = temperature, group = treatment, color = treatment))+
       theme_bw()+
       theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=0))+
-      labs(title = "Average Daily Soil Respiration Temperature", 
+      labs(title = "Time Series: Average Temperature vs Time", 
            x = "Date", 
-           y = "Average Temperature")+
-      facet_wrap(facets = "stand", ncol = 4)
-    
+           y = "Average Temperature (°C)")
     
   })
 #Average Temperature Boxplot (Specific Stand) 
@@ -1219,12 +1202,104 @@ server <- function(input, output) {
       geom_line()+
       theme(axis.text.x = element_text(angle = 90, hjust = 0))+
       theme_bw()+
-      labs(title = "Average Soil Respiration Temperature", 
+      labs(title = "Boxplot: Average Temperature vs Treatment Type", 
            x = "Treatment", 
-           y = "Average Soil Respiration Temperature")+
-      facet_wrap(facets = "stand", ncol = 4)
+           y = "Average Temperature (°C)")
     
   })
+  
+  #Creating interactive bivariate scatterplot - Litterfall
+  Litterfall %>% reactive({
+    Litterfall[sample(nrow(Litterfall), ),]
+    
+  tabItem(tabName = "Litterfall_BiVar",
+        plotOutput('plot'),
+  hr(),
+        
+  fluidRow(
+    column(2,
+           h4("Litterfall Plot Explorer"),
+           sliderInput("Year", "Select year:",
+                                  min = min(Litterfall$Year), max = max(Litterfall$Year),
+                                  value = c(2005), step = 1, sep = ","
+                       ),
+           br(),
+           checkboxInput('jitter', 'Jitter'),
+           checkboxInput('smooth', 'Smooth')
+    ),
+    column(3, offset = 1,
+           selectizeInput('x', 'X-axis: ', choices = Litterfall[c(1:7, 11:35)]),
+           selectizeInput('y', 'Y-axis: ', choices = Litterfall[c(8, 36)], 
+                       names(Litterfall), names(Litterfall)[[2]]),
+           selectInput('color', 'Color by: ', c('None', names(Litterfall)))
+           
+    output$plot <- renderPlot({
+    
+    p <- ggplot(Litterfall(), aes_string(x=input$x, y=input$y)) + geom_point()
+    
+    if (input$color != 'None')
+      p <- p + aes_string(color=input$color)
+    
+    
+    if (input$jitter)
+      p <- p + geom_jitter()
+    if (input$smooth)
+      p <- p + geom_smooth()
+    
+    print(p)
+    
+   
+    )}
+                              
+#Creating interactive bivariate scatterplot - Soil Respiration
+   CleanSoilResp %>% reactive({
+    CleanSoilResp[sample(nrow(CleanSoilResp), ),]
+  })                            
+                              
+ plotOutput('plot1'),  
+  hr(),
+                              
+  fluidRow(
+    column(2,
+           h4("Soil Respiration Plot Explorer"),
+           sliderInput("date", "Select Date:",
+                       min = min(CleanSoilResp$date), max = max(CleanSoilResp$date),
+                       sep = "/",
+           ),
+           br(),
+           checkboxInput('jitter', 'Jitter'),
+           checkboxInput('smooth', 'Smooth')
+    ),
+    column(3, offset = 1,
+           selectInput('x', 'X', names(CleanSoilResp)),
+           selectInput('y', 'Y', names(CleanSoilResp), names(CleanSoilResp)[[2]]),
+           selectInput('color', 'Color', c('None', names(CleanSoilResp)))
+           
+           
+    )
+  )
+)
+ 
+  
+  output$plot1 <- renderPlot({
+    
+    p <- ggplot(CleanSoilResp(), aes_string(x=input$x, y=input$y)) + geom_point()
+    
+    if (input$color != 'None')
+      p <- p + aes_string(color=input$color)
+    
+    
+    if (input$jitter)
+      p <- p + geom_jitter()
+    if (input$smooth)
+      p <- p + geom_smooth()
+    
+    print(p)
+    
+  })                            
+  )
+)
+        
 }
 
 
